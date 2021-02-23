@@ -5,15 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>web_ar_sample</title>
+    <style>
+        .disabled {
+            display: none;
+        }
+
+        .btn {
+            width: 300px;
+            height: 150px;
+            background: #eee;
+            color: red;
+        }
+    </style>
 </head>
 <body>
+<div id="button" class="btn"></div>
 <div id="reticle"></div>
 
 <script>
 let xr = null
 let xrHitTestSource = null
 const reticleDom = document.getElementById('reticle')
+const buttonDom = document.getElementById('button')
 reticleDom.visible = false
+
+const setDisabledAttribute = (disabled) => {
+    if (disabled) {
+      this.domElement.setAttribute('disabled', 'true');
+    } else {
+      this.domElement.removeAttribute('disabled');
+    }
+}
 
 // 端末が対応しているかどうかの確認
 if (navigator.xr) {
@@ -22,7 +44,7 @@ if (navigator.xr) {
         .then( (supported) => {
             // 対応している場合
             alert(supported)
-            if (supported) onRequestSession()
+            buttonDom.setDisabledAttribute(supported)
         })
 }
 
