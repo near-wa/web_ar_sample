@@ -56,6 +56,7 @@ const onRequestSession = () => {
     }).then((session) => {
         // xrセッションを開始する処理
         alert('session start')
+        buttonDom.setSession(session)
         renderLoop(session)
     })
 }
