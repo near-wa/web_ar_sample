@@ -28,7 +28,7 @@ if (navigator.xr) {
 
 // XRデバイスが対応している場合、XRセクションを要求
 const onRequestSession = () => {
-    alrt('onRequestSession started')
+    alert('onRequestSession started')
     return xr.requestSession('immersive-ar', {
         requiredFeatures: ['local', 'hit-test']
     }).then((session) => {
