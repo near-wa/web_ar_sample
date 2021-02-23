@@ -33,6 +33,7 @@ const onRequestSession = () => {
         requiredFeatures: ['local', 'hit-test']
     }).then((session) => {
         // xrセッションを開始する処理
+        alert('session start')
         renderLoop(session)
     })
 }
