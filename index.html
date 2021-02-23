@@ -21,6 +21,7 @@ if (navigator.xr) {
     xr.isSessionSupported('immersive-ar')
         .then( (supported) => {
             // 対応している場合
+            alert(supported)
             if (supported) onRequestSession()
         })
 }
