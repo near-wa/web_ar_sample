@@ -7,7 +7,60 @@
     <title>web_ar_sample</title>
 </head>
 <body>
+<div id="reticle"></div>
 
-<script></script>
+<script>
+let xr = null
+let xrHitTestSource = null
+const reticleDom = document.getElementById('reticle')
+reticleDom.visible = false
+
+// 端末が対応しているかどうかの確認
+if (navigator.xr) {
+    xr = navigator.xr
+    xr.isSessionSupported('immersive-ar')
+        .then( (supported) => {
+            // 対応している場合
+            if (supported) onRequestSession()
+        })
+}
+
+// XRデバイスが対応している場合、XRセクションを要求
+const onRequestSession = () => {
+    return xr.requestSession('immersive-ar', {
+        requiredFeatures: ['local', 'hit-test']
+    }).then((session) => {
+        // xrセッションを開始する処理
+        renderLoop()
+    })
+}
+
+const renderLoop = (session) => {
+    // 位置と向きを元の原点が追跡するトラッキング空間
+    session.requestReferenceSpace('viewer').then((refSpace) => {
+        xrViewerSpace = refSpace
+        session.requestHitTestSource({ space: xrViewerSpace }).then( (hitTestSource) => {
+            xrHitTestSource = hitTestSource
+        })
+    })
+
+    session.requestReferenceSpace('local').then((refSpace) => {
+        xrRefSpace = refSpace
+        session.requestAnimationFrame(xrFrame) //Render loop処理のコール
+    })
+}
+
+const xrFrame = (t, frame) => {
+    if (xrHitTestSource && pose) {
+        let hitTestResults = frame.getHitTestResults(xrHitTestSource);
+        if (hitTestResults.length > 0) {
+            //hit testを行い、hit testの結果が得られたら、バーチャルオブジェクト(reticle)を可視にセットする処理。表示位置はpose情報から取得
+            let pose = hitTestResults[0].getPose(xrRefSpace);
+            reticleDom.visible = true;
+            reticleDom.matrix = pose.transform.matrix;
+        }
+    }
+}
+</script>
 </body>
 </html>
