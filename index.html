@@ -45,6 +45,7 @@ if (navigator.xr) {
             // 対応している場合
             alert(supported)
             buttonDom.setDisabledAttribute(supported)
+            buttonDom.addEventListener('click', onRequestSession)
         })
 }
 
