@@ -47,7 +47,7 @@
                 const xrSession = await navigator.xr.requestSession('immersive-ar', {requiredFeatures: ['local', 'hit-test']});
                 xrSession.addEventListener('select', addSprite(cone));
 
-                const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas });
+                const renderer = new THREE.WebGLRenderer({ canvas: xrCanvas });
                 renderer.autoClear = false;
                 renderer.setSize(width, height);
 
@@ -58,10 +58,10 @@
                 camera.matrixAutoUpdate = false;
 
                 const cone = new THREE.Mesh(
-                    new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
+                    new THREE.ConeGeometry(0.1, 0.5, 32, 32),
                     new THREE.MeshNormalMaterial(),
                 );
-                scene.add( cone );
+                scene.add(cone);
 
                 const createSprite = (texture, position, quaternion) => {
                     const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
@@ -81,19 +81,19 @@
                     );
                 };
 
-                const xrWebGLLayer = new XRWebGLLayer( xrSession, gl);
+                const xrWebGLLayer = new XRWebGLLayer(xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
 
                 const referenceSpace = await xrSession.requestReferenceSpace('local');
 
-                const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
-                const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
+                const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace('viewer');
+                const hitTestSource = await xrSession.requestHitTestSource({ space: hitTestInputReferenceSpace });
 
                 xrSession.requestAnimationFrame(drawFrame);
 
                 const drawFrame = (timestamp, xrFrame) => {
                     xrSession.requestAnimationFrame(drawFrame);
-                    const pose = xrFrame.getViewerPose( referenceSpace );
+                    const pose = xrFrame.getViewerPose(referenceSpace);
 
                     if (hitTestSource) {
                         const hitTestResults = xrFrame.getHitTestResults(hitTestSource);
