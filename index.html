@@ -91,7 +91,6 @@
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
 
                 const referenceSpace = await xrSession.requestReferenceSpace('local');
-
                 const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace('viewer');
                 const hitTestSource = await xrSession.requestHitTestSource({ space: hitTestInputReferenceSpace });
 
