@@ -82,10 +82,10 @@
                     );
                 }
 
-                const addSprite = (cone) => {
+                const addSprite = () => {
                     createSprite(wideImageTexture, cone.position, cone.quaternion);
                 }
-                xrSession.addEventListener('select', addSprite(cone));
+                xrSession.addEventListener('select', addSprite);
 
                 const xrWebGLLayer = new XRWebGLLayer(xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
