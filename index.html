@@ -62,7 +62,7 @@
                         const material = new THREE.MeshBasicMaterial({
                             map: texture,
                         });
-                        const cube = new THREE.Mesh(geometry, material);
+                        const cube = new THREE.Mesh(new THREE.BoxBufferGeometry( .2, .2, .2 ), material);
                         scene.add(cube);
                     }
                 );
