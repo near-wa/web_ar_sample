@@ -62,7 +62,7 @@
                 const createSprite = (texture, position, quaternion) => {
                     const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
                     const sprite = new THREE.Sprite(spriteMaterial);
-                    // sprite.scale.set(scale.x, scale.y, scale.z);
+                    sprite.scale.set(0.5, 0.5, 0.5);
                     // sprite.position.set(position.x, position.y, position.z);
                     scene.add(sprite);
                     sprite.position.set(
@@ -152,7 +152,6 @@
 
                 function addConeObject(cone) {
                     createSprite(wideImageTexture, cone.position, cone.quaternion)
-                    scene.add( newCone );
                 }
 
 
