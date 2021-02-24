@@ -1,24 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ar sample</title>
     <style>
-        body {
-            margin: 0;
-        }
-        canvas {
-            display: block;
-        }
-        #startButton{
-            font-size: 50px;
-        }
+        body { margin: 0; }
+        canvas { display: block; }
+        #startButton{ font-size: 50px; }
     </style>
 </head>
 <body>
-    <button type="button" id="startButton">click to start</button>
+    <button type="button" id="startButton">ar start</button>
 
     <canvas id="xrCanvas"></canvas>
 
@@ -108,7 +102,7 @@
                 // }
 
                 function putItem(timestamp, xrFrame) {
-                    xrSession.requestAnimationFrame( onDrawFrame );
+                    xrSession.requestAnimationFrame( putItem );
                     // 姿勢を取り出す。行列（matrix）の要素が格納された配列で受け取ることができる。
                     const pose = xrFrame.getViewerPose( referenceSpace );
 
