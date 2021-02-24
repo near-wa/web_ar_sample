@@ -29,6 +29,7 @@
         const height = window.innerHeight;
         const startButton = document.getElementById('startButton');
         let xrHitTestSource = null;
+        let xrViewerSpace = null;
 
         ( async () => {
             const isArSupported = navigator.xr && await navigator.xr.isSessionSupported('immersive-ar');
@@ -105,13 +106,13 @@
                 }
 
                 function putItem(timestamp, xrFrame) {
-                    let session = frame.session;
-                    let pose = frame.getViewerPose(xrRefSpace);
+                    let session = xrFrame.session;
+                    let pose = xrFrame.getViewerPose(xrRefSpace);
 
                     // If we have a hit test source, get its results for the frame
                     // and use the pose to display a reticle in the scene.
                     if (xrHitTestSource && pose) {
-                        let hitTestResults = frame.getHitTestResults(xrHitTestSource);
+                        let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
                         if (hitTestResults.length > 0) {
                             let pose = hitTestResults[0].getPose(xrRefSpace);
                             // reticle.visible = true;
