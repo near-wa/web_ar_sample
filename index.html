@@ -46,14 +46,6 @@
                 const camera = new THREE.PerspectiveCamera();
                 camera.matrixAutoUpdate = false;
 
-                scene.add(new THREE.GridHelper(100, 100));
-
-                const box = new THREE.Mesh(
-                new THREE.BoxBufferGeometry( .2, .2, .2 ),
-                new THREE.MeshNormalMaterial(),
-                );
-                scene.add( box );
-
                 const cone = new THREE.Mesh(
                     new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
                     new THREE.MeshNormalMaterial(),
@@ -68,28 +60,7 @@
                 const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
                 const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
 
-                // xrSession.requestAnimationFrame( onDrawFrame );
                 xrSession.requestAnimationFrame( putItem );
-
-                // function onDrawFrame(timestamp, xrFrame) {
-                //     xrSession.requestAnimationFrame(onDrawFrame);
-                //     const pose = xrFrame.getViewerPose(referenceSpace);
-                //     gl.bindFramebuffer(gl.FRAMEBUFFER, xrWebGLLayer.framebuffer);
-
-                //     if (!pose) return;
-
-                //     pose.views.forEach( (view) => {
-                //         const viewport = xrWebGLLayer.getViewport( view );
-                //         renderer.setSize( viewport.width, viewport.height );
-
-                //         camera.matrix.fromArray( view.transform.matrix );
-                //         camera.projectionMatrix.fromArray( view.projectionMatrix );
-                //         camera.updateMatrixWorld( true );
-
-                //         renderer.clearDepth();
-                //         renderer.render( scene, camera );
-                //     });
-                // }
 
                 function putItem(timestamp, xrFrame) {
                     xrSession.requestAnimationFrame( putItem );
