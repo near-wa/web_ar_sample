@@ -115,12 +115,11 @@
                         let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
                         if (hitTestResults.length > 0) {
                             let pose = hitTestResults[0].getPose(referenceSpace);
+                            console.log(pose)
                             // reticle.visible = true;
                             // reticle.matrix = pose.transform.matrix;
                         }
                     }
-
-                    console.log(pose)
                 }
 
                 function onSelect() {
