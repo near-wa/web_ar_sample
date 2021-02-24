@@ -107,14 +107,14 @@
 
                 function putItem(timestamp, xrFrame) {
                     let session = xrFrame.session;
-                    let pose = xrFrame.getViewerPose(xrRefSpace);
+                    let pose = xrFrame.getViewerPose(referenceSpace);
 
                     // If we have a hit test source, get its results for the frame
                     // and use the pose to display a reticle in the scene.
                     if (xrHitTestSource && pose) {
                         let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
                         if (hitTestResults.length > 0) {
-                            let pose = hitTestResults[0].getPose(xrRefSpace);
+                            let pose = hitTestResults[0].getPose(referenceSpace);
                             // reticle.visible = true;
                             // reticle.matrix = pose.transform.matrix;
                         }
