@@ -95,8 +95,6 @@
                 const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace('viewer');
                 const hitTestSource = await xrSession.requestHitTestSource({ space: hitTestInputReferenceSpace });
 
-                xrSession.requestAnimationFrame(drawFrame);
-
                 const drawFrame = (timestamp, xrFrame) => {
                     xrSession.requestAnimationFrame(drawFrame);
                     const pose = xrFrame.getViewerPose(referenceSpace);
@@ -139,6 +137,8 @@
                         renderer.render(scene, camera);
                     });
                 }
+
+                xrSession.requestAnimationFrame(drawFrame);
             }
         })();
     </script>
