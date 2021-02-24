@@ -28,6 +28,8 @@ let xrHitTestSource = null
 const reticleDom = document.getElementById('reticle')
 const buttonDom = document.getElementById('button')
 reticleDom.visible = false
+let xrViewerSpace
+let xrRefSpace
 
 const setDisabledAttribute = (disabled) => {
     if (disabled) {
