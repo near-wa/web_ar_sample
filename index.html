@@ -109,24 +109,25 @@
 
                 function putItem(timestamp, xrFrame) {
                     console.log('putItem')
+
+                    let session = xrFrame.session;
+                    let pose = xrFrame.getViewerPose(referenceSpace);
+
+                    console.log(xrHitTestSource)
+
+                    // If we have a hit test source, get its results for the frame
+                    // and use the pose to display a reticle in the scene.
+                    if (xrHitTestSource && pose) {
+                        console.log('xrHitTestSource')
+                        let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
+                        if (hitTestResults.length > 0) {
+                            let pose = hitTestResults[0].getPose(referenceSpace);
+                            console.log(pose)
+                            // reticle.visible = true;
+                            // reticle.matrix = pose.transform.matrix;
+                        }
+                    }
                     xrSession.requestAnimationFrame( putItem );
-                    // let session = xrFrame.session;
-                    // let pose = xrFrame.getViewerPose(referenceSpace);
-
-                    // console.log(xrHitTestSource)
-
-                    // // If we have a hit test source, get its results for the frame
-                    // // and use the pose to display a reticle in the scene.
-                    // if (xrHitTestSource && pose) {
-                    //     console.log('xrHitTestSource')
-                    //     let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
-                    //     if (hitTestResults.length > 0) {
-                    //         let pose = hitTestResults[0].getPose(referenceSpace);
-                    //         console.log(pose)
-                    //         // reticle.visible = true;
-                    //         // reticle.matrix = pose.transform.matrix;
-                    //     }
-                    // }
                 }
 
                 function onSelect() {
