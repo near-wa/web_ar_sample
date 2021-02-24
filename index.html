@@ -1,101 +1,88 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>web_ar_sample</title>
+    <title>Document</title>
     <style>
-        .disabled {
-            display: none;
+        body {
+            margin: 0;
         }
-
-        .btn {
-            width: 300px;
-            height: 150px;
-            background: #eee;
-            color: red;
+        canvas {
+            display: block;
+        }
+        #startButton{
+            font-size: 50px;
         }
     </style>
 </head>
 <body>
-<div id="button" class="btn"></div>
-<div id="reticle"></div>
+    <button type="button" id="startButton">click to start</button>
 
-<script>
-let xr = null
-let xrHitTestSource = null
-const reticleDom = document.getElementById('reticle')
-const buttonDom = document.getElementById('button')
-reticleDom.visible = false
-let xrViewerSpace
-let xrRefSpace
+    <canvas id="xrCanvas"></canvas>
 
-const setDisabledAttribute = (disabled) => {
-    if (disabled) {
-        buttonDom.setAttribute('disabled', 'true');
-    } else {
-        buttonDom.removeAttribute('disabled');
-    }
-}
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js'
 
-// 端末が対応しているかどうかの確認
-if (navigator.xr) {
-    xr = navigator.xr
-    xr.isSessionSupported('immersive-ar')
-        .then( (supported) => {
-            // 対応している場合
-            alert(supported)
-            setDisabledAttribute(supported)
-            buttonDom.addEventListener('click', () => {
-                const response = onRequestSession()
-                response.catch((err) => console.log(err.message))
-            })
-        })
-}
+        const width = window.innerWidth
+        const height = window.innerHeight
+        const startButton = document.getElementById('startButton');
 
-// XRデバイスが対応している場合、XRセクションを要求
-const onRequestSession = () => {
-    alert('onRequestSession started')
-    return xr.requestSession('immersive-ar', {
-        requiredFeatures: ['local', 'hit-test']
-    }).then((session) => {
-        renderLoop(session)
-    })
-}
+        ( async () => {
+            const isArSupported = navigator.xr && await navigator.xr.isSessionSupported('immersive-ar')
+            startButton.disabled = !isArSupported
+            startButton.addEventListener('click', onEnterAr)
 
-const renderLoop = (session) => {
-    console.log('renderLoop')
-    // 位置と向きを元の原点が追跡するトラッキング空間
-    session.requestReferenceSpace('viewer').then((refSpace) => {
-        xrViewerSpace = refSpace
-        session.requestHitTestSource({ space: xrViewerSpace }).then( (hitTestSource) => {
-            xrHitTestSource = hitTestSource
-        })
-    })
+            async function onEnterAr() {
+                startButton.style.display = 'none'
 
-    session.requestReferenceSpace('local').then((refSpace) => {
-        xrRefSpace = refSpace
-        console.log('requestReferenceSpace')
-        session.requestAnimationFrame(xrFrame) //Render loop処理のコール
-    })
-}
+                const xrSession = await navigator.xr.requestSession('immersive-ar')
+                const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas })
+                renderer.autoClear = false
+                renderer.setSize(width, height)
 
-const xrFrame = (t, frame) => {
-    console.log('start xrFrame')
-    let session = frame.session;
-    let pose = frame.getViewerPose(xrRefSpace);
+                const gl = renderer.getContext()
 
-    if (xrHitTestSource && pose) {
-        let hitTestResults = frame.getHitTestResults(xrHitTestSource);
-        if (hitTestResults.length > 0) {
-            //hit testを行い、hit testの結果が得られたら、バーチャルオブジェクト(reticle)を可視にセットする処理。表示位置はpose情報から取得
-            let pose = hitTestResults[0].getPose(xrRefSpace);
-            reticleDom.visible = true;
-            reticleDom.matrix = pose.transform.matrix;
-        }
-    }
-}
-</script>
+                const scene = new THREE.Scene()
+                const camera = new THREE.PerspectiveCamera()
+
+                scene.add(new THREE.GridHelper(100, 100))
+
+                const box = new THREE.Mesh(
+                    new THREE.BoxBufferGeometry( .2, .2, .2),
+                    new THREE.MeshNormalMaterial()
+                );
+
+                scene.add(box)
+
+                const xrWebGLLayer = new XRWebGLLayer( xrSession, gl)
+                xrSession.updateRenderState({ baseLayer: xrWebGLLayer })
+                const referenceSpace = await xrSession.requestReferenceSpace('local')
+
+                xrSession.requestAnimationFrame( onDrawFrame )
+
+                function onDrawFrame(timestamp, xrFrame) {
+                    xrSession.requestAnimationFrame(onDrawFrame)
+                    const pose = xrFrame.getViewerPose(referenceSpace)
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, xrWebGLLayer.framebuffer)
+
+                    if (!pose) return
+
+                    pose.views.forEach( (view) => {
+                        const viewport = xrWebGLLayer.getViewport( view )
+                        renderer.setSize( viewport.width, viewport.height )
+
+                        camera.matrix.fromArray( view.transform.matrix )
+                        camera.projectionMatrix.fromArray( view.projectionMatrix )
+                        camera.updateMatrixWorld( true )
+
+                        renderer.clearDepth()
+                        renderer.render( scene, camera )
+                    });
+                }
+            }
+        })()
+    </script>
 </body>
 </html>
