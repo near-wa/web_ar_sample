@@ -12,29 +12,40 @@
     </style>
 </head>
 <body>
-    <button type="button" id="startButton">ar start</button>
+    <button type="button" id="startButton">AR START</button>
 
     <canvas id="xrCanvas"></canvas>
 
     <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js'
-        let xrHitTestSource = null;
-        let xrViewerSpace = null;
+        import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
+
+        const imagePath = './hikaru.jpg';
         const width = window.innerWidth;
         const height = window.innerHeight;
-
         const startButton = document.getElementById('startButton');
+        let xrHitTestSource = null;
+        let xrViewerSpace = null;
 
         ( async () => {
+            // ブラウザがARをサポートしているか
             const isArSupported = navigator.xr && await navigator.xr.isSessionSupported('immersive-ar');
-            startButton.disabled = !isArSupported;
-            startButton.addEventListener('click', onEnterAr);
 
-            async function onEnterAr() {
+            // サポート対象外の場合
+            if (!isArSupported) {
+                startButton.disabled = !isArSupported;
+                return;
+            }
+
+            startButton.addEventListener('click', startAr);
+
+            async function startAr() {
                 startButton.style.display = 'none';
+                // テクスチャの作成
+                const wideImageTexture = new THREE.TextureLoader().load(imagePath);
 
+                // セッションの取得
                 const xrSession = await navigator.xr.requestSession('immersive-ar', {requiredFeatures: ['local', 'hit-test']});
-                xrSession.addEventListener('select', onSelect);
+                xrSession.addEventListener('select', addSprite(cone));
 
                 const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas });
                 renderer.autoClear = false;
@@ -52,18 +63,10 @@
                 );
                 scene.add( cone );
 
-                const createTexture = (filePath) => {
-                    return new THREE.TextureLoader().load(filePath);
-                }
-                const wideImageTexture = createTexture(
-                    './hikaru.jpg'
-                );
-
                 const createSprite = (texture, position, quaternion) => {
                     const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
                     const sprite = new THREE.Sprite(spriteMaterial);
                     sprite.scale.set(0.5, 0.5, 0.5);
-                    // sprite.position.set(position.x, position.y, position.z);
                     scene.add(sprite);
                     sprite.position.set(
                         position.x,
@@ -86,75 +89,54 @@
                 const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
                 const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
 
-                xrSession.requestAnimationFrame( putItem );
+                xrSession.requestAnimationFrame(drawFrame);
 
-                function putItem(timestamp, xrFrame) {
-                    xrSession.requestAnimationFrame( putItem );
-                    // 姿勢を取り出す。行列（matrix）の要素が格納された配列で受け取ることができる。
+                const drawFrame = (timestamp, xrFrame) => {
+                    xrSession.requestAnimationFrame(drawFrame);
                     const pose = xrFrame.getViewerPose( referenceSpace );
 
-                    // xrFrame からは、現在のセッション、とベースレイヤーを取り出すこともできる。
-                    // xrFrame.session === xrSession;
-                    // xrSession.renderState.baseLayer === xrWebGLLayer;
+                    if (hitTestSource) {
+                        const hitTestResults = xrFrame.getHitTestResults(hitTestSource);
 
-                    // ヒットテストを実行する。
-                    if ( hitTestSource ) {
+                        if (hitTestResults.length > 0) {
+                            // 座標の取得
+                            const pose = hitTestResults[0].getPose(referenceSpace);
 
-                        const hitTestResults = xrFrame.getHitTestResults( hitTestSource );
-
-                        // なにかにヒットしていたら、最初にヒットした平面の座標を取得する。
-                        // 座標は pose として取得でき、その中に位置や角度が格納されている。
-                        if ( hitTestResults.length > 0 ) {
-
-                        const pose = hitTestResults[ 0 ].getPose( referenceSpace );
-
-                        cone.position.set(
-                            pose.transform.position.x,
-                            pose.transform.position.y,
-                            pose.transform.position.z
-                        );
-                        cone.quaternion.set(
-                            pose.transform.orientation.x,
-                            pose.transform.orientation.y,
-                            pose.transform.orientation.z,
-                            pose.transform.orientation.w,
-                        );
-
+                            cone.position.set(
+                                pose.transform.position.x,
+                                pose.transform.position.y,
+                                pose.transform.position.z
+                            );
+                            cone.quaternion.set(
+                                pose.transform.orientation.x,
+                                pose.transform.orientation.y,
+                                pose.transform.orientation.z,
+                                pose.transform.orientation.w,
+                            );
                         }
                     }
 
-                    // 現実の風景をWebGLのフレームバッファーに転写する
-                    gl.bindFramebuffer( gl.FRAMEBUFFER, xrWebGLLayer.framebuffer );
+                    // 映像の統合
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, xrWebGLLayer.framebuffer);
 
-                    if ( ! pose ) return;
+                    if (!pose) return;
 
-                    // if the xrSession is for both right and left eyes, length of views would be 2.
-                    // if not, length is 1,
-                    pose.views.forEach( ( view ) => {
+                    pose.views.forEach((view) => {
+                        const viewport = xrWebGLLayer.getViewport(view);
+                        renderer.setSize(viewport.width, viewport.height);
 
-                    const viewport = xrWebGLLayer.getViewport( view );
-                    renderer.setSize( viewport.width, viewport.height );
+                        camera.matrix.fromArray(view.transform.matrix);
+                        camera.projectionMatrix.fromArray(view.projectionMatrix);
+                        camera.updateMatrixWorld(true);
 
-                    camera.matrix.fromArray( view.transform.matrix );
-                    camera.projectionMatrix.fromArray( view.projectionMatrix );
-                    camera.updateMatrixWorld( true );
-
-                    renderer.clearDepth();
-                    renderer.render( scene, camera );
-
-                    } );
+                        renderer.clearDepth();
+                        renderer.render(scene, camera);
+                    });
                 }
 
-                function onSelect() {
-                    console.log(cone)
-                    addConeObject(cone)
+                const addSprite = (cone) => {
+                    createSprite(wideImageTexture, cone.position, cone.quaternion);
                 }
-
-                function addConeObject(cone) {
-                    createSprite(wideImageTexture, cone.position, cone.quaternion)
-                }
-
-
             }
         })();
     </script>
