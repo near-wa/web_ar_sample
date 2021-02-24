@@ -109,6 +109,7 @@
 
                 function putItem(timestamp, xrFrame) {
                     console.log('putItem')
+                    xrSession.requestAnimationFrame( putItem );
                     // let session = xrFrame.session;
                     // let pose = xrFrame.getViewerPose(referenceSpace);
 
