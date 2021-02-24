@@ -117,6 +117,7 @@
                     // xrSession.renderState.baseLayer === xrWebGLLayer;
 
                     // ヒットテストを実行する。
+                    console.log('hitTestSource', hitTestSource)
                     if ( hitTestSource ) {
 
                         const hitTestResults = xrFrame.getHitTestResults( hitTestSource );
@@ -126,6 +127,7 @@
                         if ( hitTestResults.length > 0 ) {
 
                         const pose = hitTestResults[ 0 ].getPose( referenceSpace );
+                        console.log(pose.transform.position)
 
                         cone.position.set(
                             pose.transform.position.x,
