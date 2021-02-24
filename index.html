@@ -73,7 +73,6 @@
 
                 const xrWebGLLayer = new XRWebGLLayer( xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
-                const referenceSpace = await xrSession.requestReferenceSpace('local');
 
                 xrSession.requestReferenceSpace('viewer').then((refSpace) => {
                     console.log('viewer1', refSpace)
@@ -83,6 +82,7 @@
                         xrHitTestSource = hitTestSource;
                     });
                 });
+                const referenceSpace = await xrSession.requestReferenceSpace('local');
 
                 xrSession.requestAnimationFrame( onDrawFrame );
                 xrSession.requestAnimationFrame( putItem );
