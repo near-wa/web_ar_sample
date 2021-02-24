@@ -46,6 +46,7 @@
 
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera();
+                camera.matrixAutoUpdate = false;
 
                 scene.add(new THREE.GridHelper(100, 100));
 
@@ -67,7 +68,7 @@
                     const pose = xrFrame.getViewerPose(referenceSpace);
                     gl.bindFramebuffer(gl.FRAMEBUFFER, xrWebGLLayer.framebuffer);
 
-                    if (!pose) return
+                    if (!pose) return;
 
                     pose.views.forEach( (view) => {
                         const viewport = xrWebGLLayer.getViewport( view );
