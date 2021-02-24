@@ -19,7 +19,7 @@
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
 
-        const imagePath = './hikaru.jpg';
+        const imagePath = './hikaruchan.png';
         const width = window.innerWidth;
         const height = window.innerHeight;
         const startButton = document.getElementById('startButton');
@@ -45,7 +45,6 @@
 
                 // セッションの取得
                 const xrSession = await navigator.xr.requestSession('immersive-ar', {requiredFeatures: ['local', 'hit-test']});
-                xrSession.addEventListener('select', addSprite(cone));
 
                 const renderer = new THREE.WebGLRenderer({ canvas: xrCanvas });
                 renderer.autoClear = false;
@@ -79,7 +78,12 @@
                         quaternion.z,
                         quaternion.w
                     );
-                };
+                }
+
+                const addSprite = (cone) => {
+                    createSprite(wideImageTexture, cone.position, cone.quaternion);
+                }
+                xrSession.addEventListener('select', addSprite(cone));
 
                 const xrWebGLLayer = new XRWebGLLayer(xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
@@ -132,10 +136,6 @@
                         renderer.clearDepth();
                         renderer.render(scene, camera);
                     });
-                }
-
-                const addSprite = (cone) => {
-                    createSprite(wideImageTexture, cone.position, cone.quaternion);
                 }
             }
         })();
