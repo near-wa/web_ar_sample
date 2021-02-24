@@ -71,17 +71,17 @@
                     }
                 );
 
+                const cone = new THREE.Mesh(
+                new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
+                new THREE.MeshNormalMaterial(),
+                );
+                scene.add( cone );
+
                 const xrWebGLLayer = new XRWebGLLayer( xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
 
-                xrSession.requestReferenceSpace('viewer').then((refSpace) => {
-                    console.log('viewer1', typeof refSpace)
-                    xrViewerSpace = refSpace;
-                    xrSession.requestHitTestSource({ space: xrViewerSpace }).then((hitTestSource) => {
-                        console.log('viewer2', typeof hitTestSource)
-                        xrHitTestSource = hitTestSource;
-                    });
-                });
+                const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
+                const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
                 const referenceSpace = await xrSession.requestReferenceSpace('local');
 
                 xrSession.requestAnimationFrame( onDrawFrame );
@@ -108,26 +108,39 @@
                 }
 
                 function putItem(timestamp, xrFrame) {
-                    console.log('putItem')
+                    xrSession.requestAnimationFrame( onDrawFrame );
+                    // 姿勢を取り出す。行列（matrix）の要素が格納された配列で受け取ることができる。
+                    const pose = xrFrame.getViewerPose( referenceSpace );
 
-                    let session = xrFrame.session;
-                    let pose = xrFrame.getViewerPose(referenceSpace);
+                    // xrFrame からは、現在のセッション、とベースレイヤーを取り出すこともできる。
+                    // xrFrame.session === xrSession;
+                    // xrSession.renderState.baseLayer === xrWebGLLayer;
 
-                    console.log(xrHitTestSource)
+                    // ヒットテストを実行する。
+                    if ( hitTestSource ) {
 
-                    // If we have a hit test source, get its results for the frame
-                    // and use the pose to display a reticle in the scene.
-                    if (xrHitTestSource && pose) {
-                        console.log('xrHitTestSource')
-                        let hitTestResults = xrFrame.getHitTestResults(xrHitTestSource);
-                        if (hitTestResults.length > 0) {
-                            let pose = hitTestResults[0].getPose(referenceSpace);
-                            console.log(pose)
-                            // reticle.visible = true;
-                            // reticle.matrix = pose.transform.matrix;
+                        const hitTestResults = xrFrame.getHitTestResults( hitTestSource );
+
+                        // なにかにヒットしていたら、最初にヒットした平面の座標を取得する。
+                        // 座標は pose として取得でき、その中に位置や角度が格納されている。
+                        if ( hitTestResults.length > 0 ) {
+
+                        const pose = hitTestResults[ 0 ].getPose( referenceSpace );
+
+                        cone.position.set(
+                            pose.transform.position.x,
+                            pose.transform.position.y,
+                            pose.transform.position.z
+                        );
+                        cone.quaternion.set(
+                            pose.transform.orientation.x,
+                            pose.transform.orientation.y,
+                            pose.transform.orientation.z,
+                            pose.transform.orientation.w,
+                        );
+
                         }
                     }
-                    xrSession.requestAnimationFrame( putItem );
                 }
 
                 function onSelect() {
