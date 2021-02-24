@@ -68,10 +68,9 @@
                         const material = new THREE.MeshPhongMaterial( { map:texture } );
                         const plane = new THREE.Mesh( geometry, material );
                         plane.scale.set(w, h, 1);
+                        scene.add(plane)
                     }
                 );
-
-                scene.add(texture)
 
                 const xrWebGLLayer = new XRWebGLLayer( xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
