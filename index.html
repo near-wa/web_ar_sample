@@ -150,16 +150,26 @@
 
                 function onSelect() {
                     console.log(cone)
-                    addConeObject(cone.matrix)
+                    addConeObject(cone)
                 }
 
-                function addConeObject(matrix) {
+                function addConeObject(cone) {
                     const newCone = new THREE.Mesh(
                         new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
                         new THREE.MeshNormalMaterial(),
                     );
-                    newCone.matrix = matrix;
                     scene.add( newCone );
+                    newCone.position.set(
+                        cone.transform.position.x,
+                        cone.transform.position.y,
+                        cone.transform.position.z
+                    );
+                    newCone.quaternion.set(
+                        cone.transform.orientation.x,
+                        cone.transform.orientation.y,
+                        cone.transform.orientation.z,
+                        cone.transform.orientation.w,
+                    );
                 }
             }
         })();
