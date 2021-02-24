@@ -39,7 +39,7 @@
             async function onEnterAr() {
                 startButton.style.display = 'none';
 
-                const xrSession = await navigator.xr.requestSession('immersive-ar');
+                const xrSession = await navigator.xr.requestSession('immersive-ar', {requiredFeatures: ['local', 'hit-test']});
                 xrSession.addEventListener('select', onSelect);
 
                 const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas });
