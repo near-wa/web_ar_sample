@@ -76,6 +76,7 @@ const renderLoop = (session) => {
 
     session.requestReferenceSpace('local').then((refSpace) => {
         xrRefSpace = refSpace
+        console.log('requestReferenceSpace')
         session.requestAnimationFrame(xrFrame) //Render loop処理のコール
     })
 }
