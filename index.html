@@ -18,12 +18,12 @@
 
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js'
-
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        const startButton = document.getElementById('startButton');
         let xrHitTestSource = null;
         let xrViewerSpace = null;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const startButton = document.getElementById('startButton');
 
         ( async () => {
             const isArSupported = navigator.xr && await navigator.xr.isSessionSupported('immersive-ar');
@@ -48,35 +48,25 @@
 
                 scene.add(new THREE.GridHelper(100, 100));
 
-                // const box = new THREE.Mesh(
-                //     new THREE.BoxBufferGeometry( .2, .2, .2 ),
-                //     new THREE.MeshNormalMaterial()
-                // );
-
-                // scene.add(box);
-
-                // const texture = new THREE.TextureLoader().load('./hikaru.jpg',
-                //     (texture) => { // 読み込み完了時
-                //         const material = new THREE.MeshBasicMaterial({
-                //             map: texture,
-                //         });
-                //         const cube = new THREE.Mesh(new THREE.BoxBufferGeometry( .2, .2, .2 ), material);
-                //         scene.add(cube);
-                //     }
-                // );
+                const box = new THREE.Mesh(
+                new THREE.BoxBufferGeometry( .2, .2, .2 ),
+                new THREE.MeshNormalMaterial(),
+                );
+                scene.add( box );
 
                 const cone = new THREE.Mesh(
-                new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
-                new THREE.MeshNormalMaterial(),
+                    new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ),
+                    new THREE.MeshNormalMaterial(),
                 );
                 scene.add( cone );
 
                 const xrWebGLLayer = new XRWebGLLayer( xrSession, gl);
                 xrSession.updateRenderState({ baseLayer: xrWebGLLayer });
 
+                const referenceSpace = await xrSession.requestReferenceSpace('local');
+
                 const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
                 const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
-                const referenceSpace = await xrSession.requestReferenceSpace('local');
 
                 // xrSession.requestAnimationFrame( onDrawFrame );
                 xrSession.requestAnimationFrame( putItem );
@@ -137,6 +127,27 @@
 
                         }
                     }
+
+                      // 現実の風景をWebGLのフレームバッファーに転写する
+  gl.bindFramebuffer( gl.FRAMEBUFFER, xrWebGLLayer.framebuffer );
+
+if ( ! pose ) return;
+
+// if the xrSession is for both right and left eyes, length of views would be 2.
+// if not, length is 1,
+pose.views.forEach( ( view ) => {
+
+  const viewport = xrWebGLLayer.getViewport( view );
+  renderer.setSize( viewport.width, viewport.height );
+
+  camera.matrix.fromArray( view.transform.matrix );
+  camera.projectionMatrix.fromArray( view.projectionMatrix );
+  camera.updateMatrixWorld( true );
+
+  renderer.clearDepth();
+  renderer.render( scene, camera );
+
+} );
                 }
 
                 function onSelect() {
