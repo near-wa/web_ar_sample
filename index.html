@@ -101,7 +101,6 @@
                     // xrSession.renderState.baseLayer === xrWebGLLayer;
 
                     // ヒットテストを実行する。
-                    console.log('hitTestSource', hitTestSource)
                     if ( hitTestSource ) {
 
                         const hitTestResults = xrFrame.getHitTestResults( hitTestSource );
@@ -111,7 +110,6 @@
                         if ( hitTestResults.length > 0 ) {
 
                         const pose = hitTestResults[ 0 ].getPose( referenceSpace );
-                        console.log(pose.transform.position)
 
                         cone.position.set(
                             pose.transform.position.x,
@@ -128,30 +126,30 @@
                         }
                     }
 
-                      // 現実の風景をWebGLのフレームバッファーに転写する
-  gl.bindFramebuffer( gl.FRAMEBUFFER, xrWebGLLayer.framebuffer );
+                    // 現実の風景をWebGLのフレームバッファーに転写する
+                    gl.bindFramebuffer( gl.FRAMEBUFFER, xrWebGLLayer.framebuffer );
 
-if ( ! pose ) return;
+                    if ( ! pose ) return;
 
-// if the xrSession is for both right and left eyes, length of views would be 2.
-// if not, length is 1,
-pose.views.forEach( ( view ) => {
+                    // if the xrSession is for both right and left eyes, length of views would be 2.
+                    // if not, length is 1,
+                    pose.views.forEach( ( view ) => {
 
-  const viewport = xrWebGLLayer.getViewport( view );
-  renderer.setSize( viewport.width, viewport.height );
+                    const viewport = xrWebGLLayer.getViewport( view );
+                    renderer.setSize( viewport.width, viewport.height );
 
-  camera.matrix.fromArray( view.transform.matrix );
-  camera.projectionMatrix.fromArray( view.projectionMatrix );
-  camera.updateMatrixWorld( true );
+                    camera.matrix.fromArray( view.transform.matrix );
+                    camera.projectionMatrix.fromArray( view.projectionMatrix );
+                    camera.updateMatrixWorld( true );
 
-  renderer.clearDepth();
-  renderer.render( scene, camera );
+                    renderer.clearDepth();
+                    renderer.render( scene, camera );
 
-} );
+                    } );
                 }
 
                 function onSelect() {
-                    console.log('select')
+                    console.log(cone.matrix)
                 }
             }
         })();
