@@ -81,6 +81,10 @@ const renderLoop = (session) => {
 }
 
 const xrFrame = (t, frame) => {
+    console.log('start xrFrame')
+    let session = frame.session;
+    let pose = frame.getViewerPose(xrRefSpace);
+
     if (xrHitTestSource && pose) {
         let hitTestResults = frame.getHitTestResults(xrHitTestSource);
         if (hitTestResults.length > 0) {
