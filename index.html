@@ -38,7 +38,7 @@
                 startButton.style.display = 'none';
 
                 const xrSession = await navigator.xr.requestSession('immersive-ar');
-                xrSession.addEventListener('select', onSelect);
+                // xrSession.addEventListener('select', onSelect);
 
                 const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas });
                 renderer.autoClear = false;
