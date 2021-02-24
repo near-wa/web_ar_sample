@@ -109,6 +109,8 @@
                     let session = xrFrame.session;
                     let pose = xrFrame.getViewerPose(referenceSpace);
 
+                    console.log(xrHitTestSource)
+
                     // If we have a hit test source, get its results for the frame
                     // and use the pose to display a reticle in the scene.
                     if (xrHitTestSource && pose) {
